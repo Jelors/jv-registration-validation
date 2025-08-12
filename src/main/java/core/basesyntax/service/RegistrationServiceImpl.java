@@ -10,16 +10,27 @@ public class RegistrationServiceImpl implements RegistrationService {
 
     @Override
     public User register(User user) {
-        if ((user.getLogin() == null || user.getLogin().length() <= 5)
-                || (user.getPassword() == null || user.getPassword().length() <= 5)) {
+        if (user.getLogin() == null || user.getLogin().length() <= 5) {
             throw new ValidationException(
-                    "User login or password cannot be null or less than 6 symbols");
+                    "User login cannot be null or less than 6 symbols");
+        }
+        if (user.getPassword() == null || user.getPassword().length() <= 5) {
+            throw new ValidationException(
+                    "User password cannot be null or less than 6 symbols");
+        }
+        if (user.getLogin().isEmpty() || user.getPassword().isEmpty()) {
+            throw new ValidationException(
+                    "User login or password cannot be empty");
+        }
+        if (user.getAge() == null || user.getAge() <= 17) {
+            throw new ValidationException(
+                    "User age cannot be null or user younger than 18 y.o.");
         }
         if (isLoginTaken(user.getLogin())) {
             throw new ValidationException("User already registered!");
         }
-        storageDao.add(user);
-        return null;
+
+        return storageDao.add(user);
     }
 
     public StorageDao getStorageDao() {
@@ -27,6 +38,6 @@ public class RegistrationServiceImpl implements RegistrationService {
     }
 
     public boolean isLoginTaken(String login) {
-        return getStorageDao().get(login) == null;
+        return getStorageDao().get(login) != null;
     }
 }
