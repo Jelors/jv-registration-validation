@@ -17,7 +17,8 @@ import org.junit.jupiter.api.Test;
 class RegistrationServiceImplTest {
     private static RegistrationService registrationService;
     private static StorageDao storageDao;
-    private final int minPasswordLength = 6;
+    private static final int MIN_PASSWORD_LENGTH = 6;
+    private static final int MIN_LOGIN_LENGTH = 6;
 
     @BeforeAll
     static void setUpAll() {
@@ -38,10 +39,33 @@ class RegistrationServiceImplTest {
     }
 
     @Test
-    void register_LoginLargeOrEqualsThanSixSymbols_Ok() {
-        User user = new User(123L, "Carlos",
+    void register_nullPassword_notOk() {
+        User user = new User(104L, "Carlos",
+                null, 18);
+        assertThrows(ValidationException.class, () -> registrationService.register(user));
+    }
+
+    @Test
+    void register_nullAge_notOk() {
+        User user = new User(1004L, "JessyP",
+                "pas", null);
+        assertThrows(ValidationException.class, () -> registrationService.register(user));
+    }
+
+    @Test
+    void register_LoginLargeThanSixSymbols_Ok() {
+        User user = new User(123L, "Carlosdsa",
                 "password", 18);
-        assertTrue(user.getLogin().length() >= minPasswordLength);
+        assertTrue(registrationService.register(user)
+                .getLogin().length() > MIN_LOGIN_LENGTH);
+    }
+
+    @Test
+    void register_LoginEqualsToSixSymbols_Ok() {
+        User user = new User(1025L, "Carlos",
+                "paswordd", 22);
+        assertTrue(registrationService.register(user)
+                .getLogin().length() == MIN_LOGIN_LENGTH);
     }
 
     @Test
@@ -52,10 +76,19 @@ class RegistrationServiceImplTest {
     }
 
     @Test
-    void register_PasswordLargeOrEqualsThanSixSymbols_Ok() {
+    void register_PasswordLargeThanSixSymbols_Ok() {
         User user = new User(123L, "Sanchez",
-                "pass12", 21);
-        assertTrue(user.getPassword().length() >= minPasswordLength);
+                "pass4112", 21);
+        assertTrue(registrationService.register(user)
+                .getPassword().length() > MIN_PASSWORD_LENGTH);
+    }
+
+    @Test
+    void register_PasswordEqualsSixSymbols_Ok() {
+        User user = new User(105L, "Sanchez",
+                "pass41", 19);
+        assertTrue(registrationService.register(user)
+                .getPassword().length() == MIN_PASSWORD_LENGTH);
     }
 
     @Test
@@ -77,7 +110,7 @@ class RegistrationServiceImplTest {
     @Test
     void register_AgeUnderEighteen_notOk() {
         User user = new User(111L, "Maria",
-                "passd123", 14);
+                "passd12333", 14);
         assertThrows(ValidationException.class, () -> registrationService.register(user));
     }
 
@@ -111,6 +144,13 @@ class RegistrationServiceImplTest {
     }
 
     @Test
+    void register_AgeEqualsToZero_notOk() {
+        User user = new User(76L, "Heisenberg",
+                "password23", 0);
+        assertThrows(ValidationException.class, () -> registrationService.register(user));
+    }
+
+    @Test
     void register_LoginIsEmpty_notOk() {
         User user = new User(10L, "",
                 "passwo123", 49);
@@ -121,6 +161,20 @@ class RegistrationServiceImplTest {
     void register_PasswordIsEmpty_notOk() {
         User user = new User(7L, "Michael",
                 "", 34);
+        assertThrows(ValidationException.class, () -> registrationService.register(user));
+    }
+
+    @Test
+    void register_PasswordLengthEqualsToZero_notOk() {
+        User user = new User(72L, "Heisenberg",
+                "", 41);
+        assertThrows(ValidationException.class, () -> registrationService.register(user));
+    }
+
+    @Test
+    void register_LoginLengthEqualsToZero_notOk() {
+        User user = new User(72L, "",
+                "asdasda", 41);
         assertThrows(ValidationException.class, () -> registrationService.register(user));
     }
 }

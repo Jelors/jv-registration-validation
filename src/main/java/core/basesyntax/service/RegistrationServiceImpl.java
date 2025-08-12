@@ -10,21 +10,33 @@ public class RegistrationServiceImpl implements RegistrationService {
 
     @Override
     public User register(User user) {
-        if (user.getLogin() == null || user.getLogin().length() <= 5) {
+        if (user.getLogin() == null) {
             throw new ValidationException(
-                    "User login cannot be null or less than 6 symbols");
+                    "User login cannot be null");
         }
-        if (user.getPassword() == null || user.getPassword().length() <= 5) {
+        if (user.getPassword() == null) {
             throw new ValidationException(
-                    "User password cannot be null or less than 6 symbols");
+                    "User password cannot be null");
         }
-        if (user.getLogin().isEmpty() || user.getPassword().isEmpty()) {
+        if (user.getAge() == null) {
             throw new ValidationException(
-                    "User login or password cannot be empty");
+                    "User age cannot be null");
         }
-        if (user.getAge() == null || user.getAge() <= 17) {
+        if (user.getLogin().length() <= 5) {
             throw new ValidationException(
-                    "User age cannot be null or user younger than 18 y.o.");
+                    "User login length cannot be less than 6 symbols");
+        }
+        if (user.getPassword().length() <= 5) {
+            throw new ValidationException(
+                    "User password length cannot be less than 6 symbols");
+        }
+        if (user.getAge() <= 0) {
+            throw new ValidationException(
+                    "User age cannot be negative");
+        }
+        if (user.getAge() <= 17) {
+            throw new ValidationException(
+                    "User age cannot be less than 18 y.o.");
         }
         if (isLoginTaken(user.getLogin())) {
             throw new ValidationException("User already registered!");
